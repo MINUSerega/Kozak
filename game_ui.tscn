@@ -1,0 +1,273 @@
+[gd_scene format=3 uid="uid://ctdkt57poavlo"]
+
+[ext_resource type="Script" uid="uid://hjayf6cjrnd5" path="res://game_ui.gd" id="1_oaw30"]
+[ext_resource type="Texture2D" uid="uid://d1qw2m7kx1l3f" path="res://environment/inventory_02.png" id="1_ue6oa"]
+[ext_resource type="Texture2D" uid="uid://b43lxqn5fl7cc" path="res://environment/inventory_01.png" id="3_mj8uy"]
+[ext_resource type="PackedScene" uid="uid://dah8algphmxxv" path="res://ui/inventory_slot.tscn" id="4_3rlp6"]
+
+[sub_resource type="Gradient" id="Gradient_i3pqv"]
+colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_oaw30"]
+gradient = SubResource("Gradient_i3pqv")
+
+[sub_resource type="Gradient" id="Gradient_sweqy"]
+colors = PackedColorArray(1, 0, 0, 1, 1, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_mj8uy"]
+gradient = SubResource("Gradient_sweqy")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mj8uy"]
+bg_color = Color(0, 0, 0, 0.93333334)
+
+[node name="GameUI" type="CanvasLayer" unique_id=748996299]
+process_mode = 3
+script = ExtResource("1_oaw30")
+
+[node name="GameplayHUD" type="Control" parent="." unique_id=1276269915]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HUDHealthBar" type="TextureProgressBar" parent="GameplayHUD" unique_id=1337094977]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 16.000002
+offset_right = 128.0
+offset_bottom = 80.0
+scale = Vector2(5, 0.25)
+texture_under = SubResource("GradientTexture2D_oaw30")
+texture_progress = SubResource("GradientTexture2D_mj8uy")
+
+[node name="BtnInventoryOpen" type="TextureButton" parent="GameplayHUD" unique_id=1525759261]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -46.0
+offset_top = -46.0
+grow_horizontal = 0
+grow_vertical = 0
+texture_normal = ExtResource("1_ue6oa")
+
+[node name="Windows" type="Control" parent="." unique_id=1960126895]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="InventoryBackground" type="TextureRect" parent="Windows" unique_id=803264440]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -460.0
+offset_top = -280.0
+offset_right = -60.0
+offset_bottom = 280.0
+grow_horizontal = 0
+grow_vertical = 2
+texture = ExtResource("3_mj8uy")
+expand_mode = 1
+
+[node name="GridContainer" type="GridContainer" parent="Windows/InventoryBackground" unique_id=304428999]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 68.0
+offset_right = 49.0
+offset_bottom = 108.0
+columns = 8
+
+[node name="InventorySlot" parent="Windows/InventoryBackground/GridContainer" unique_id=1760691529 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot10" parent="Windows/InventoryBackground/GridContainer" unique_id=1827837293 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot11" parent="Windows/InventoryBackground/GridContainer" unique_id=2050344203 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot12" parent="Windows/InventoryBackground/GridContainer" unique_id=531665868 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot13" parent="Windows/InventoryBackground/GridContainer" unique_id=1075352042 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot14" parent="Windows/InventoryBackground/GridContainer" unique_id=543201206 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot15" parent="Windows/InventoryBackground/GridContainer" unique_id=2084592727 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot16" parent="Windows/InventoryBackground/GridContainer" unique_id=1721838567 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot17" parent="Windows/InventoryBackground/GridContainer" unique_id=872914992 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot18" parent="Windows/InventoryBackground/GridContainer" unique_id=1546923596 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot19" parent="Windows/InventoryBackground/GridContainer" unique_id=1038374327 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot20" parent="Windows/InventoryBackground/GridContainer" unique_id=1126011659 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot21" parent="Windows/InventoryBackground/GridContainer" unique_id=1811972422 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot22" parent="Windows/InventoryBackground/GridContainer" unique_id=1172305095 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot23" parent="Windows/InventoryBackground/GridContainer" unique_id=1068941656 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot24" parent="Windows/InventoryBackground/GridContainer" unique_id=1869002228 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot25" parent="Windows/InventoryBackground/GridContainer" unique_id=1601805083 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot26" parent="Windows/InventoryBackground/GridContainer" unique_id=659398873 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot27" parent="Windows/InventoryBackground/GridContainer" unique_id=1678208619 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot28" parent="Windows/InventoryBackground/GridContainer" unique_id=927847503 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot29" parent="Windows/InventoryBackground/GridContainer" unique_id=484797738 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot30" parent="Windows/InventoryBackground/GridContainer" unique_id=389098665 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot31" parent="Windows/InventoryBackground/GridContainer" unique_id=1961096141 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot32" parent="Windows/InventoryBackground/GridContainer" unique_id=1739603155 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot33" parent="Windows/InventoryBackground/GridContainer" unique_id=1035261136 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot34" parent="Windows/InventoryBackground/GridContainer" unique_id=2124542965 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot7" parent="Windows/InventoryBackground/GridContainer" unique_id=1127684840 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot8" parent="Windows/InventoryBackground/GridContainer" unique_id=1778201831 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot9" parent="Windows/InventoryBackground/GridContainer" unique_id=1388047876 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot2" parent="Windows/InventoryBackground/GridContainer" unique_id=1353117687 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot3" parent="Windows/InventoryBackground/GridContainer" unique_id=2132554066 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot4" parent="Windows/InventoryBackground/GridContainer" unique_id=853675821 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot5" parent="Windows/InventoryBackground/GridContainer" unique_id=1367701699 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="InventorySlot6" parent="Windows/InventoryBackground/GridContainer" unique_id=780889128 instance=ExtResource("4_3rlp6")]
+layout_mode = 2
+
+[node name="DeathScreen" type="Control" parent="." unique_id=936126744]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="RespawnButton" type="Button" parent="DeathScreen" unique_id=1358310652]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -33.0
+offset_top = -15.5
+offset_right = 33.0
+offset_bottom = 15.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "В місто"
+
+[node name="SystemMenu" type="Control" parent="." unique_id=522638095]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PauseMenu" type="Control" parent="SystemMenu" unique_id=20035933]
+process_mode = 3
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="Panel" type="Panel" parent="SystemMenu/PauseMenu" unique_id=1230984958]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_mj8uy")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SystemMenu/PauseMenu" unique_id=1855073874]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -72.5
+offset_top = -50.5
+offset_right = 72.5
+offset_bottom = 50.5
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="BtnResume" type="Button" parent="SystemMenu/PauseMenu/VBoxContainer" unique_id=1775992740]
+layout_mode = 2
+text = "ПРОДОВЖИТИ"
+
+[node name="BtnSettings" type="Button" parent="SystemMenu/PauseMenu/VBoxContainer" unique_id=509751208]
+layout_mode = 2
+text = "НАЛАШТУВАННЯ"
+
+[node name="BtnQuit" type="Button" parent="SystemMenu/PauseMenu/VBoxContainer" unique_id=217877692]
+layout_mode = 2
+text = "ГОЛОВНЕ МЕНЮ"

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://msw8fmu85uj4"]
+
+[ext_resource type="Script" uid="uid://r3tgk4c2w7ah" path="res://items/item_data.gd" id="1_6rxjy"]
+[ext_resource type="Texture2D" uid="uid://bvjjnswfkxbne" path="res://environment/skin.png" id="1_rqwos"]
+
+[resource]
+script = ExtResource("1_6rxjy")
+id = "skin"
+name = "Вовча Шкура"
+type = 3
+description = "Шматок старої шкіри. Можна продати."
+icon = ExtResource("1_rqwos")
+price = 15
+is_stackable = true
+max_stack_size = 999
+metadata/_custom_type_script = "uid://r3tgk4c2w7ah"

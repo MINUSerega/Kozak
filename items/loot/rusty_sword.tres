@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://bt3y32x6pisij"]
+
+[ext_resource type="Script" uid="uid://r3tgk4c2w7ah" path="res://items/item_data.gd" id="1_ag72d"]
+[ext_resource type="Texture2D" uid="uid://bnaspqs08fg00" path="res://environment/sword.png" id="1_iw62b"]
+
+[resource]
+script = ExtResource("1_ag72d")
+id = "rusty_sword"
+name = "Іржавий Меч"
+type = 0
+description = "Іржавий Меч"
+icon = ExtResource("1_iw62b")
+price = 100
+metadata/_custom_type_script = "uid://r3tgk4c2w7ah"

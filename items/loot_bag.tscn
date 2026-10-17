@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://dmm8sn7ta87wb"]
+
+[ext_resource type="Script" uid="uid://dahsc8iiclv7x" path="res://items/loot_bag.gd" id="1_itjv3"]
+[ext_resource type="Texture2D" uid="uid://bvbcysnd7wf55" path="res://environment/bag.png" id="2_e25aj"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ypdel"]
+radius = 12.676057
+
+[node name="LootBag" type="Area2D" unique_id=975801674]
+collision_mask = 3
+script = ExtResource("1_itjv3")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=650123005]
+position = Vector2(0.5, -0.5)
+texture = ExtResource("2_e25aj")
+offset = Vector2(0, -32)
+
+[node name="Label" type="Label" parent="." unique_id=458364797]
+visible = false
+offset_left = -32.0
+offset_top = -120.0
+offset_right = 33.0
+offset_bottom = -71.0
+size_flags_horizontal = 4
+text = "\"E\"
+Підняти"
+horizontal_alignment = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1727018237]
+position = Vector2(0.5, -32.5)
+rotation = 3.1415927
+scale = Vector2(14.2213, -2.5343826)
+shape = SubResource("CircleShape2D_ypdel")

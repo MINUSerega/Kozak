@@ -1,0 +1,70 @@
+[gd_scene format=3 uid="uid://cyxph3tcixejj"]
+
+[ext_resource type="Script" uid="uid://r5mib5o47vb" path="res://enemy.gd" id="1_4gyqm"]
+[ext_resource type="Texture2D" uid="uid://b52awcjg18mkr" path="res://environment/backgrounds/idle.png" id="1_7k104"]
+[ext_resource type="PackedScene" uid="uid://dmm8sn7ta87wb" path="res://items/loot_bag.tscn" id="2_epg4t"]
+[ext_resource type="Script" uid="uid://mqvuclxmtkdo" path="res://StatsComponent.gd" id="3_iifgy"]
+[ext_resource type="Script" uid="uid://b81teylr7kcks" path="res://HealthComponent.gd" id="4_epg4t"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4gyqm"]
+size = Vector2(18, 40)
+
+[sub_resource type="Gradient" id="Gradient_4gyqm"]
+colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_qi2p4"]
+gradient = SubResource("Gradient_4gyqm")
+
+[sub_resource type="Gradient" id="Gradient_iifgy"]
+colors = PackedColorArray(0.8, 0.105882354, 0, 1, 0.8, 0.105882354, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_epg4t"]
+gradient = SubResource("Gradient_iifgy")
+
+[sub_resource type="LabelSettings" id="LabelSettings_iifgy"]
+font_size = 12
+font_color = Color(0, 0, 0, 1)
+outline_size = 1
+
+[node name="Enemy" type="CharacterBody2D" unique_id=766162309]
+collision_layer = 4
+script = ExtResource("1_4gyqm")
+loot_bag_scene = ExtResource("2_epg4t")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1713852647]
+texture = ExtResource("1_7k104")
+offset = Vector2(0, -26)
+hframes = 12
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=26634284]
+position = Vector2(-1, -20)
+shape = SubResource("RectangleShape2D_4gyqm")
+
+[node name="HealthBar" type="TextureProgressBar" parent="." unique_id=1635222047]
+offset_left = -13.0
+offset_top = -48.0
+offset_right = 51.0
+offset_bottom = 16.0
+scale = Vector2(0.4, 0.04)
+mouse_filter = 2
+texture_under = SubResource("GradientTexture2D_qi2p4")
+texture_progress = SubResource("GradientTexture2D_epg4t")
+
+[node name="StatsComponent" type="Node" parent="." unique_id=1287066340]
+script = ExtResource("3_iifgy")
+metadata/_custom_type_script = "uid://mqvuclxmtkdo"
+
+[node name="HealthComponent" type="Node" parent="." unique_id=516729709 node_paths=PackedStringArray("stats_component")]
+script = ExtResource("4_epg4t")
+stats_component = NodePath("../StatsComponent")
+metadata/_custom_type_script = "uid://b81teylr7kcks"
+
+[node name="NameLabel" type="Label" parent="." unique_id=694580309]
+offset_left = -16.0
+offset_top = -46.000004
+offset_right = 126.22223
+offset_bottom = -23.000004
+scale = Vector2(0.225, 0.225)
+text = "Enemy Name"
+label_settings = SubResource("LabelSettings_iifgy")
+horizontal_alignment = 1

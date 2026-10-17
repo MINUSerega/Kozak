@@ -1,0 +1,136 @@
+[gd_scene format=3 uid="uid://dkoq4ldub5gei"]
+
+[ext_resource type="Script" uid="uid://btyc7eb7aw7k" path="res://world.gd" id="1_2o6r5"]
+[ext_resource type="Texture2D" uid="uid://2dxmqaflhm8k" path="res://environment/backgrounds/platform.svg" id="1_k3n1d"]
+[ext_resource type="Texture2D" uid="uid://drw20va4c3pei" path="res://environment/backgrounds/bg_skay_bkue.svg" id="1_pkg7o"]
+[ext_resource type="PackedScene" uid="uid://ctdkt57poavlo" path="res://game_ui.tscn" id="2_2u3nc"]
+[ext_resource type="Texture2D" uid="uid://cf6qu5o5b5j8y" path="res://environment/backgrounds/gras_02.svg" id="2_fj7yv"]
+[ext_resource type="PackedScene" uid="uid://io7nxwt0thkd" path="res://player.tscn" id="3_tlwt5"]
+[ext_resource type="Script" uid="uid://dfs73bvuo3dcy" path="res://DayCycle.gd" id="6_dwbse"]
+[ext_resource type="Texture2D" uid="uid://b1kepsw65td6j" path="res://environment/backgrounds/sun.png" id="6_pkg7o"]
+[ext_resource type="Texture2D" uid="uid://c7h1xy2mjf5rl" path="res://environment/backgrounds/moon-png-28541.png" id="7_pkg7o"]
+[ext_resource type="Texture2D" uid="uid://rr3vkjc88bww" path="res://environment/backgrounds/Untitled (22).png" id="8_ioo17"]
+[ext_resource type="Texture2D" uid="uid://byh80iblhr80g" path="res://environment/backgrounds/bg_02.svg" id="9_wse8f"]
+[ext_resource type="Texture2D" uid="uid://bmvn8nwxvtheu" path="res://environment/backgrounds/bg_03.svg" id="10_ic0uy"]
+[ext_resource type="Texture2D" uid="uid://ci8t85hwkt0hx" path="res://environment/backgrounds/f02fe8fe2276fbb2c32031ee16f643f9.jpg" id="11_70uel"]
+[ext_resource type="Texture2D" uid="uid://bu4at4jv2f7ln" path="res://environment/backgrounds/bg_04.svg" id="11_k3n1d"]
+[ext_resource type="PackedScene" uid="uid://cyxph3tcixejj" path="res://enemy.tscn" id="13_2o6r5"]
+
+[node name="World" type="Node2D" unique_id=1162491093]
+script = ExtResource("1_2o6r5")
+
+[node name="GameUI" parent="." unique_id=748996299 instance=ExtResource("2_2u3nc")]
+
+[node name="Platform" type="Sprite2D" parent="." unique_id=1157726861]
+visible = false
+position = Vector2(960, 934.5)
+texture = ExtResource("1_k3n1d")
+
+[node name="Platform" type="Sprite2D" parent="Platform" unique_id=843855100]
+position = Vector2(1912, 0)
+texture = ExtResource("1_k3n1d")
+
+[node name="Platform" type="Sprite2D" parent="Platform/Platform" unique_id=521559302]
+position = Vector2(1918, 0)
+texture = ExtResource("1_k3n1d")
+
+[node name="Platform" type="Sprite2D" parent="Platform/Platform/Platform" unique_id=1540388824]
+position = Vector2(1912, 0)
+texture = ExtResource("1_k3n1d")
+
+[node name="SkyLayer" type="CanvasLayer" parent="." unique_id=2044487515]
+layer = -1
+
+[node name="BgSkayBkue" type="Sprite2D" parent="SkyLayer" unique_id=1979671880]
+position = Vector2(3000, 538)
+scale = Vector2(1, 1.0037037)
+texture = ExtResource("1_pkg7o")
+
+[node name="SunPivot" type="Node2D" parent="SkyLayer" unique_id=1112989504]
+position = Vector2(960, 928)
+script = ExtResource("6_dwbse")
+
+[node name="Sprite2D" type="Sprite2D" parent="SkyLayer/SunPivot" unique_id=276089523]
+position = Vector2(0, -1024)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("6_pkg7o")
+
+[node name="DirectionalLight2D" type="DirectionalLight2D" parent="SkyLayer/SunPivot/Sprite2D" unique_id=1685651223]
+energy = 0.01
+
+[node name="Sprite2D2" type="Sprite2D" parent="SkyLayer/SunPivot" unique_id=315138221]
+position = Vector2(0, 850)
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("7_pkg7o")
+
+[node name="Player" parent="." unique_id=416488550 instance=ExtResource("3_tlwt5")]
+z_index = 3
+position = Vector2(1465, 880.00006)
+scale = Vector2(0.6, 0.6)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="Player" unique_id=1258323013]
+
+[node name="Enemy" parent="." unique_id=468650469 instance=ExtResource("13_2o6r5")]
+position = Vector2(2768.0002, 856)
+scale = Vector2(5, 5)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1695983811]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D" unique_id=484160272]
+position = Vector2(-64, -256)
+polygon = PackedVector2Array(64, 0, 64, 768, 64, 1216, -64, 1216, -64, 1024, -64, 0)
+
+[node name="Polygon2D" type="Polygon2D" parent="StaticBody2D/CollisionPolygon2D" unique_id=403579844]
+
+[node name="StaticBody2D2" type="StaticBody2D" parent="." unique_id=659093641]
+
+[node name="Gras02" type="Sprite2D" parent="StaticBody2D2" unique_id=877270192]
+visible = false
+texture_filter = 1
+position = Vector2(2984, 944)
+texture = ExtResource("2_fj7yv")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D2" unique_id=622616344]
+position = Vector2(0, -64)
+polygon = PackedVector2Array(-16, 928, 5984, 928, 5984, 960, -16, 960)
+
+[node name="Untitled(22)" type="Sprite2D" parent="." unique_id=1877572619]
+visible = false
+position = Vector2(959.1109, 539.99994)
+scale = Vector2(0.24999999, 0.25)
+texture = ExtResource("8_ioo17")
+
+[node name="F02Fe8Fe2276Fbb2c32031Ee16f643f9" type="Sprite2D" parent="." unique_id=109639040]
+z_index = -1
+position = Vector2(1672, -2080)
+scale = Vector2(2.8049998, 2.8050003)
+texture = ExtResource("11_70uel")
+
+[node name="Parallax2D" type="Parallax2D" parent="." unique_id=282486200]
+visible = false
+scroll_scale = Vector2(0.8, 0.8)
+
+[node name="bg02" type="Sprite2D" parent="Parallax2D" unique_id=654350069]
+z_index = -1
+position = Vector2(3000, 864)
+texture = ExtResource("9_wse8f")
+
+[node name="Parallax2D2" type="Parallax2D" parent="." unique_id=547291785]
+z_index = -2
+scroll_scale = Vector2(0.6, 0.6)
+
+[node name="bg03" type="Sprite2D" parent="Parallax2D2" unique_id=674002742]
+position = Vector2(3000, 808)
+texture = ExtResource("10_ic0uy")
+
+[node name="Parallax2D3" type="Parallax2D" parent="." unique_id=335647183]
+z_index = -3
+scroll_scale = Vector2(0.4, 0.4)
+
+[node name="bg04" type="Sprite2D" parent="Parallax2D3" unique_id=2066455362]
+position = Vector2(3016, 792)
+texture = ExtResource("11_k3n1d")
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1231162716]
+visible = false
+color = Color(0.41981313, 0.41981313, 0.4198131, 1)

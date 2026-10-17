@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="PlayerData" format=3 uid="uid://cifv4d5kkra7v"]
+
+[ext_resource type="Script" uid="uid://bf1ds6kugq7we" path="res://PlayerData.gd" id="1_i6hq1"]
+[ext_resource type="Script" uid="uid://chpy0bhlqyler" path="res://AttributeData.gd" id="1_mq7bp"]
+
+[sub_resource type="Resource" id="Resource_q51yx"]
+script = ExtResource("1_mq7bp")
+strength = 100.0
+max_health = 1000.0
+metadata/_custom_type_script = "uid://chpy0bhlqyler"
+
+[resource]
+script = ExtResource("1_i6hq1")
+base_stats = SubResource("Resource_q51yx")
+metadata/_custom_type_script = "uid://bf1ds6kugq7we"
