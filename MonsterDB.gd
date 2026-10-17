@@ -1,14 +1,16 @@
 extends Node
 
-# [ВАЖЛИВО] Цей рядок вказує шлях до папки з предметами.
-const ITEMS_PATH = "res://items/loot/"
+# [ВАЖЛИВО] Шлях до папки з предметами екіпірування та лутом
+const ITEMS_PATH: String = "res://items/loot/"
 
-var MOBS = {
-	"e0001": {
+# База даних усіх монстрів у грі.
+# Використовуються нові строкові ID (enm_0001, enm_0002 тощо).
+var MOBS: Dictionary = {
+	"enm_0001": {
 		"name": "Weak Gremlin",
 		"level": 1,
 		"is_aggressive": true,
-		"skills": ["s0001"],
+		"skills": ["skl_0001"],
 		"xp_reward": 15,
 		"stats": {
 			"strength": 5.0,
@@ -22,27 +24,28 @@ var MOBS = {
 			"detection_radius": 500.0,
 			"chase_limit": 700.0,
 			"wander_radius": 300.0,
-			"respawn_time": 5.0,
+			"respawn_time": 5.0
 		},
-		# ДРОП: Тепер це словник з налаштуваннями
 		"drops": {
-			"skin": { 
-				"chance": 0.9,  # 90% шанс
-				"min": 1,       # Мінімум 1
-				"max": 5        # Максимум 5
+			# res_0001 - це колишня шкіра (skin)
+			"res_0001": { 
+				"chance": 0.9, 
+				"min": 1, 
+				"max": 5 
 			},
-			"rusty_sword": { 
+			# wpn_0001 - це колишній іржавий меч (rusty_sword)
+			"wpn_0001": { 
 				"chance": 0.2, 
 				"min": 1, 
-				"max": 1
+				"max": 1 
 			}
 		}
 	},
-	"e0002": {
+	"enm_0002": {
 		"name": "Forest Orc",
 		"level": 5,
 		"is_aggressive": true,
-		"skills": ["s0001", "s0005"],
+		"skills": ["skl_0001", "skl_0005"],
 		"xp_reward": 100,
 		"stats": {
 			"strength": 15.0,
@@ -59,18 +62,20 @@ var MOBS = {
 			"respawn_time": 10.0
 		},
 		"drops": {
-			"skin": { 
+			# res_0001 - Шкіра
+			"res_0001": { 
 				"chance": 0.5, 
 				"min": 1, 
 				"max": 3 
 			},
-			"rusty_sword": { 
+			# wpn_0001 - Іржавий меч
+			"wpn_0001": { 
 				"chance": 0.2, 
 				"min": 1, 
 				"max": 1 
 			},
-			# Не забудь створити файл coin.tres в папці loot!
-			"coin": { 
+			# res_0002 - Монета (coin)
+			"res_0002": { 
 				"chance": 1.0, 
 				"min": 1, 
 				"max": 5 
@@ -79,101 +84,96 @@ var MOBS = {
 	}
 }
 
+## Отримання базових характеристик для моба за його ID
 func get_attributes(mob_id: String) -> AttributeData:
 	if not MOBS.has(mob_id):
-		push_error("MonsterDB: ID не знайдено -> " + mob_id)
+		push_error("MonsterDB: ID моба не знайдено -> " + mob_id)
 		return AttributeData.new()
 
-	var data = MOBS[mob_id]
-	var stats_data = data.get("stats", {}) 
+	var data: Dictionary = MOBS[mob_id] as Dictionary
+	var stats_data: Dictionary = data.get("stats", {}) as Dictionary
 
-	var attrs = AttributeData.new()
+	var attrs: AttributeData = AttributeData.new()
 	
-	# --- ПЕРВИННІ ---
-	attrs.strength = stats_data.get("strength", 10.0)
-	attrs.dexterity = stats_data.get("dexterity", 10.0)
-	attrs.intelligence = stats_data.get("intelligence", 10.0)
-	attrs.constitution = stats_data.get("constitution", 10.0)
-	attrs.luck = stats_data.get("luck", 5.0)
+	# Первинні атрибути
+	attrs.strength = float(stats_data.get("strength", 10.0))
+	attrs.dexterity = float(stats_data.get("dexterity", 10.0))
+	attrs.intelligence = float(stats_data.get("intelligence", 10.0))
+	attrs.constitution = float(stats_data.get("constitution", 10.0))
+	attrs.luck = float(stats_data.get("luck", 5.0))
 	
-	# --- ЖИТТЄВІ ПОКАЗНИКИ ---
+	# Життєві показники
 	if stats_data.has("max_health"):
-		attrs.max_health = stats_data.get("max_health", 100.0)
+		attrs.max_health = float(stats_data.get("max_health", 100.0))
 	elif stats_data.has("base_health"):
-		attrs.max_health = stats_data.get("base_health", 100.0)
+		attrs.max_health = float(stats_data.get("base_health", 100.0))
 		
-	attrs.health_regeneration = stats_data.get("health_regeneration", 1.0)
-	attrs.max_mana = stats_data.get("max_mana", 50.0)
-	attrs.mana_regeneration = stats_data.get("mana_regeneration", 2.0)
+	attrs.health_regeneration = float(stats_data.get("health_regeneration", 1.0))
+	attrs.max_mana = float(stats_data.get("max_mana", 50.0))
+	attrs.mana_regeneration = float(stats_data.get("mana_regeneration", 2.0))
 	
-	# --- БОЙОВІ ---
-	attrs.armor = stats_data.get("armor", 0.0)
-	attrs.physical_damage = stats_data.get("physical_damage", 10.0)
-	attrs.magic_damage = stats_data.get("magic_damage", 0.0)
-	attrs.movement_speed = stats_data.get("movement_speed", 150.0)
-	attrs.attack_range = stats_data.get("attack_range", 40.0)
-	attrs.attack_speed = stats_data.get("attack_speed", 1.0)
+	# Бойові характеристики
+	attrs.armor = float(stats_data.get("armor", 0.0))
+	attrs.physical_damage = float(stats_data.get("physical_damage", 10.0))
+	attrs.magic_damage = float(stats_data.get("magic_damage", 0.0))
+	attrs.movement_speed = float(stats_data.get("movement_speed", 150.0))
+	attrs.attack_range = float(stats_data.get("attack_range", 40.0))
+	attrs.attack_speed = float(stats_data.get("attack_speed", 1.0))
 	
-	# Крити та інше
-	attrs.critical_chance = stats_data.get("critical_chance", 0.05)
-	attrs.critical_multiplier = stats_data.get("critical_multiplier", 1.5)
+	attrs.critical_chance = float(stats_data.get("critical_chance", 0.05))
+	attrs.critical_multiplier = float(stats_data.get("critical_multiplier", 1.5))
 	
-	# --- AI ПАРАМЕТРИ ---
-	attrs.detection_radius = stats_data.get("detection_radius", 200.0)
-	attrs.chase_limit = stats_data.get("chase_limit", 400.0)
-	attrs.wander_radius = stats_data.get("wander_radius", 100.0)
-	attrs.respawn_time = stats_data.get("respawn_time", 15.0)
+	# AI параметри поведінки
+	attrs.detection_radius = float(stats_data.get("detection_radius", 200.0))
+	attrs.chase_limit = float(stats_data.get("chase_limit", 400.0))
+	attrs.wander_radius = float(stats_data.get("wander_radius", 100.0))
+	attrs.respawn_time = float(stats_data.get("respawn_time", 15.0))
 	
-	# --- НАГОРОДИ ---
-	attrs.xp_reward = data.get("xp_reward", 10)
+	# Нагороди
+	attrs.xp_reward = int(data.get("xp_reward", 10))
 	
 	return attrs
 
+## Отримання словника з інформацією про моба
 func get_mob_info(mob_id: String) -> Dictionary:
-	return MOBS.get(mob_id, {})
+	return MOBS.get(mob_id, {}) as Dictionary
 	
-# [НОВА ФУНКЦІЯ] Розрахунок випадіння предметів
+## Розрахунок випадіння предметів при смерті моба
 func calculate_loot(mob_id: String) -> Array[ItemData]:
 	var dropped_items: Array[ItemData] = []
 	
-	if not MOBS.has(mob_id): return []
+	if not MOBS.has(mob_id): 
+		return dropped_items
 	
-	var mob_data = MOBS[mob_id]
-	# Отримуємо таблицю дропу (завжди словник)
-	var drop_table = mob_data.get("drops", {})
+	var mob_data: Dictionary = MOBS[mob_id] as Dictionary
+	var drop_table: Dictionary = mob_data.get("drops", {}) as Dictionary
 	
-	for item_id in drop_table:
-		var entry = drop_table[item_id]
+	for item_key: Variant in drop_table.keys():
+		var item_id: String = str(item_key)
+		var entry: Variant = drop_table[item_id]
 		
-		# Змінні за замовчуванням
-		var chance = 0.0
-		var min_qty = 1
-		var max_qty = 1
+		var chance: float = 0.0
+		var min_qty: int = 1
+		var max_qty: int = 1
 		
-		# Перевіряємо формат: Словник чи просте число
 		if entry is Dictionary:
-			chance = entry.get("chance", 0.0)
-			min_qty = entry.get("min", 1)
-			max_qty = entry.get("max", 1)
-		elif entry is float:
-			chance = entry # Старий формат
+			var entry_dict: Dictionary = entry as Dictionary
+			chance = float(entry_dict.get("chance", 0.0))
+			min_qty = int(entry_dict.get("min", 1))
+			max_qty = int(entry_dict.get("max", 1))
+		elif entry is float or entry is int:
+			chance = float(entry)
 		
-		# Кидаємо кубик (шанс)
 		if randf() <= chance:
-			var path = ITEMS_PATH + item_id + ".tres"
+			var path: String = ITEMS_PATH + item_id + ".tres"
 			
 			if ResourceLoader.exists(path):
-				var item_res = load(path) as ItemData
-				
-				# [ВАЖЛИВО] Створюємо унікальну копію предмета
-				var new_item = item_res.duplicate()
-				
-				# [ВАЖЛИВО] Генеруємо випадкову кількість від Min до Max
-				# Ця цифра зберігається всередині new_item і передається гравцю
-				new_item.quantity = randi_range(min_qty, max_qty)
-				
-				dropped_items.append(new_item) 
+				var item_res: Resource = load(path)
+				if item_res is ItemData:
+					var new_item: ItemData = item_res.duplicate() as ItemData
+					new_item.quantity = randi_range(min_qty, max_qty)
+					dropped_items.append(new_item)
 			else:
-				print("ПОМИЛКА: Не знайдено файл предмета: ", path)
+				print("MonsterDB: ПОМИЛКА! Не знайдено файл предмета луту -> ", path)
 				
 	return dropped_items

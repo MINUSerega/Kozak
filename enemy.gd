@@ -1,19 +1,24 @@
 extends CharacterBody2D
+class_name Enemy
 
 # --- ІДЕНТИФІКАЦІЯ ---
-@export var monster_id: String = "e0001" 
+## Строковий ID моба з MonsterDB
+@export var monster_id: String = "enm_0001" 
 @export var loot_bag_scene: PackedScene
 
+# --- СТАНИ ШТУЧНОГО ІНТЕЛЕКТУ ---
+enum State { IDLE, WANDER, CHASE, ATTACK, RETURN }
+var current_state: State = State.IDLE
 
-# --- КОМПОНЕНТИ ---
-@onready var stats = $StatsComponent
-@onready var health = $HealthComponent
-@onready var name_label = $NameLabel
-@onready var hp_bar = $HealthBar 
-@onready var sprite = $Sprite2D
-@onready var collision = $CollisionShape2D 
+# --- КОМПОНЕНТИ (Вузли) ---
+@onready var stats: StatsComponent = $StatsComponent as StatsComponent
+@onready var health: HealthComponent = $HealthComponent as HealthComponent
+@onready var name_label: Label = $NameLabel as Label
+@onready var hp_bar: Range = $HealthBar as Range 
+@onready var sprite: Sprite2D = $Sprite2D as Sprite2D
+@onready var collision: CollisionShape2D = $CollisionShape2D as CollisionShape2D 
 
-# --- ЗМІННІ ПОВЕДІНКИ (Тепер вони заповнюються з БАЗИ, а не з Інспектора) ---
+# --- ЗМІННІ ПОВЕДІНКИ (Заповнюються з MonsterDB) ---
 var detection_radius: float = 150.0
 var chase_limit: float = 300.0
 var wander_radius: float = 100.0
@@ -22,145 +27,146 @@ var move_speed: float = 60.0
 var attack_range: float = 40.0
 var attack_speed: float = 1.0
 
-# Системні змінні
-var spawn_position: Vector2
+# --- СИСТЕМНІ ЗМІННІ ---
+var spawn_position: Vector2 = Vector2.ZERO
 var player: CharacterBody2D = null
-var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
+var gravity: float = 980.0
 
 var mob_level: int = 1
 var is_aggressive: bool = false
 var xp_reward: int = 0
 
-
-enum State { IDLE, WANDER, CHASE, ATTACK, RETURN }
-var state: State = State.IDLE
 var wander_timer: float = 0.0
 var current_attack_cooldown: float = 0.0
 var wander_target_x: float = 0.0
 var is_dead: bool = false
 
-func _ready():
+func _ready() -> void:
+	add_to_group("Enemy")
 	spawn_position = global_position
-	# Знаходимо гравця через групу
-	player = get_tree().get_first_node_in_group("Player")
+	gravity = float(ProjectSettings.get_setting("physics/2d/default_gravity", 980.0))
 	
-	health.health_changed.connect(_on_health_updated)
-	health.died.connect(_on_death)
+	var player_node: Node = get_tree().get_first_node_in_group("Player")
+	if player_node is CharacterBody2D:
+		player = player_node as CharacterBody2D
 	
-	# ЗАВАНТАЖУЄМО ВСІ ДАНІ (Включаючи AI)
+	if health != null:
+		health.health_changed.connect(_on_health_updated)
+		health.died.connect(_on_death)
+	
 	_setup_monster_from_db()
-	
 	_pick_new_wander_target()
 
-func _physics_process(delta):
-	if is_dead: return
+func _physics_process(delta: float) -> void:
+	if is_dead: 
+		return
 
 	if not is_on_floor():
 		velocity.y += gravity * delta
 
-	if current_attack_cooldown > 0:
+	if current_attack_cooldown > 0.0:
 		current_attack_cooldown -= delta
 
-	# ЛОГІКА ПЕРЕВІРКИ ГРАВЦЯ
-	if player and player.is_dead and (state == State.CHASE or state == State.ATTACK):
-		state = State.RETURN 
+	# Логіка перевірки стану гравця
+	if player != null and player.has_method("is_dead") and player.get("is_dead") == true:
+		if current_state == State.CHASE or current_state == State.ATTACK:
+			current_state = State.RETURN 
 
-	match state:
+	match current_state:
 		State.IDLE:
-			velocity.x = 0
+			velocity.x = 0.0
 			_check_aggro_logic()
 			wander_timer -= delta
-			if wander_timer <= 0:
-				state = State.WANDER
+			if wander_timer <= 0.0:
+				current_state = State.WANDER
 		
 		State.WANDER:
 			_check_aggro_logic()
 			_move_to_x(wander_target_x)
-			if abs(global_position.x - wander_target_x) < 10:
-				state = State.IDLE
+			if absf(global_position.x - wander_target_x) < 10.0:
+				current_state = State.IDLE
 				wander_timer = randf_range(2.0, 5.0)
 				_pick_new_wander_target()
 		
 		State.CHASE:
-			if player and not player.is_dead:
+			if player != null and (not player.has_method("is_dead") or not player.get("is_dead")):
 				_move_to_x(player.global_position.x)
-				var dist = global_position.distance_to(player.global_position)
+				var dist: float = global_position.distance_to(player.global_position)
 				if dist > chase_limit:
-					state = State.RETURN
+					current_state = State.RETURN
 				elif dist < attack_range:
-					state = State.ATTACK
+					current_state = State.ATTACK
 			else:
-				state = State.RETURN
+				current_state = State.RETURN
 		
 		State.ATTACK:
-			velocity.x = 0
-			if player and not player.is_dead:
-				if current_attack_cooldown <= 0:
+			velocity.x = 0.0
+			if player != null and (not player.has_method("is_dead") or not player.get("is_dead")):
+				if current_attack_cooldown <= 0.0:
 					_perform_attack()
 				if global_position.distance_to(player.global_position) > attack_range:
-					state = State.CHASE
+					current_state = State.CHASE
 			else:
-				state = State.RETURN
+				current_state = State.RETURN
 		
 		State.RETURN:
 			_move_to_x(spawn_position.x)
-			if abs(global_position.x - spawn_position.x) < 10:
-				state = State.IDLE
-				# Скидаємо стан агресії до бази
-				var info = MonsterDB.get_mob_info(monster_id)
-				is_aggressive = info.get("is_aggressive", false)
+			if absf(global_position.x - spawn_position.x) < 10.0:
+				current_state = State.IDLE
+				var info: Dictionary = MonsterDB.get_mob_info(monster_id)
+				is_aggressive = bool(info.get("is_aggressive", false))
 	
 	move_and_slide()
 	_flip_sprite()
 
 # --- БОЙОВА ЛОГІКА ---
+func take_damage(data: DamageData) -> void:
+	if is_dead: 
+		return
+	if player != null and (not player.has_method("is_dead") or not player.get("is_dead")):
+		current_state = State.CHASE
+		
+	if health != null:
+		health.take_damage(data)
+		
+	if sprite != null and is_instance_valid(sprite):
+		sprite.modulate = Color.RED
+		await get_tree().create_timer(0.1).timeout
+		if is_instance_valid(sprite): 
+			sprite.modulate = Color.WHITE
 
-func take_damage(data: DamageData):
-	if is_dead: return
-	if player and not player.is_dead:
-		state = State.CHASE
-	health.take_damage(data)
-	sprite.modulate = Color.RED
-	await get_tree().create_timer(0.1).timeout
-	if is_instance_valid(sprite): sprite.modulate = Color.WHITE
+func _perform_attack() -> void:
+	current_attack_cooldown = 1.0 / maxf(0.1, attack_speed) 
+	if player != null and player.has_method("take_damage") and (not player.has_method("is_dead") or not player.get("is_dead")):
+		var dmg_amount: float = stats.get_stat("physical_damage") if stats != null else 5.0
+		var dmg_data: DamageData = DamageData.new(dmg_amount, self, GameEnums.DamageType.PHYSICAL)
+		player.call("take_damage", dmg_data)
 
-func _perform_attack():
-	current_attack_cooldown = 1.0 / attack_speed 
-	if player and player.has_method("take_damage") and not player.is_dead:
-		# Шкода тепер береться з StatsComponent (Сила * множник)
-		var dmg_amount = stats.get_stat("physical_damage")
-		var dmg_data = DamageData.new(dmg_amount, self, GameEnums.DamageType.PHYSICAL)
-		player.take_damage(dmg_data)
-
-func _check_aggro_logic():
-	if not player or player.is_dead: return
+func _check_aggro_logic() -> void:
+	if player == null or (player.has_method("is_dead") and player.get("is_dead")): 
+		return
 	
 	if is_aggressive:
-		var dist = global_position.distance_to(player.global_position)
+		var dist: float = global_position.distance_to(player.global_position)
 		if dist < detection_radius:
-			state = State.CHASE
+			current_state = State.CHASE
 
-# --- ЗАВАНТАЖЕННЯ ДАНИХ (ОНОВЛЕНО) ---
-
-func _setup_monster_from_db():
-	var info = MonsterDB.get_mob_info(monster_id)
-	if info.is_empty(): return
+# --- ЗАВАНТАЖЕННЯ ДАНИХ ---
+func _setup_monster_from_db() -> void:
+	var info: Dictionary = MonsterDB.get_mob_info(monster_id)
+	if info.is_empty(): 
+		return
 	
-	# 1. Загальна інформація
-	mob_level = info.get("level", 1)
-	is_aggressive = info.get("is_aggressive", false)
-	xp_reward = info.get("xp_reward", 10)
+	mob_level = int(info.get("level", 1))
+	is_aggressive = bool(info.get("is_aggressive", false))
+	xp_reward = int(info.get("xp_reward", 10))
 	
-	# 2. Характеристики (AttributeData)
-	if stats:
-		# Завантажуємо паспорт
+	if stats != null:
 		stats.base_attributes = MonsterDB.get_attributes(monster_id)
-		stats._recalculate_stats() # Оновлюємо кеш
+		stats._recalculate_stats()
 		
-		# 3. Розпаковуємо AI параметри з паспорта у змінні цього скрипта
-		# Це дозволяє використовувати їх у physics_process
-		var attrs = stats.base_attributes
-		if attrs:
+		var attrs: AttributeData = stats.base_attributes
+		if attrs != null:
 			detection_radius = attrs.detection_radius
 			chase_limit = attrs.chase_limit
 			wander_radius = attrs.wander_radius
@@ -169,66 +175,69 @@ func _setup_monster_from_db():
 			attack_range = attrs.attack_range
 			attack_speed = attrs.attack_speed
 	
-	# 4. Здоров'я
-	if health: health.initialize_health()
+	if health != null: 
+		health.initialize_health()
 	
-	# 5. Візуал
-	var display_name = "Lv." + str(mob_level) + " " + info.get("name", "Monster")
-	name_label.modulate = Color(1, 0.6, 0.6) if is_aggressive else Color(1, 1, 1)
-	name_label.text = display_name
+	if name_label != null:
+		var display_name: String = "Lv." + str(mob_level) + " " + str(info.get("name", "Monster"))
+		name_label.modulate = Color(1.0, 0.6, 0.6) if is_aggressive else Color(1.0, 1.0, 1.0)
+		name_label.text = display_name
 
-func _on_health_updated(current, max_hp):
-	if hp_bar:
+func _on_health_updated(current: float, max_hp: float) -> void:
+	if hp_bar != null:
 		hp_bar.max_value = max_hp
 		hp_bar.value = current
 		hp_bar.show()
 
-func _on_death():
+func _on_death() -> void:
 	is_dead = true
 	
-	# 1. Видаємо досвід
-	if player and player.has_node("ExperienceComponent"):
-		player.get_node("ExperienceComponent").add_experience(xp_reward)
+	if player != null and player.has_node("ExperienceComponent"):
+		var xp_comp: Node = player.get_node("ExperienceComponent")
+		if xp_comp.has_method("add_experience"):
+			xp_comp.call("add_experience", xp_reward)
 	
-	# 2. РОЗРАХУНОК ЛУТУ
-	var drops = MonsterDB.calculate_loot(monster_id)
+	var drops: Array[ItemData] = MonsterDB.calculate_loot(monster_id)
 	
-	# 3. Якщо щось випало - створюємо мішок
-	if drops.size() > 0 and loot_bag_scene:
-		var bag = loot_bag_scene.instantiate()
-		bag.global_position = global_position # Мішок падає там, де стояв моб
-		bag.items_inside = drops # Кладемо предмети всередину
-		
-		# Додаємо мішок у світ (не в моба, бо моб зникне!)
-		get_tree().current_scene.add_child(bag)
-		# Або, якщо світ - це батьківський вузол:
-		# get_parent().add_child(bag)
+	if drops.size() > 0 and loot_bag_scene != null:
+		var bag_instance: Node = loot_bag_scene.instantiate()
+		if bag_instance is Area2D:
+			var bag: Area2D = bag_instance as Area2D
+			bag.global_position = global_position 
+			bag.set("items_inside", drops)
+			
+			var current_scene: Node = get_tree().current_scene
+			if current_scene != null:
+				current_scene.add_child(bag)
 	
-	# 4. Ховаємо моба і запускаємо таймер респавну
 	hide()
-	collision.set_deferred("disabled", true)
-	name_label.hide()
+	if collision != null:
+		collision.set_deferred("disabled", true)
+	if name_label != null:
+		name_label.hide()
+		
 	await get_tree().create_timer(respawn_time).timeout
-	respawn()
+	_respawn()
 
-func respawn():
+func _respawn() -> void:
 	global_position = spawn_position
-	health.heal(9999) 
-	state = State.IDLE
+	if health != null:
+		health.heal(99999.0) 
+	current_state = State.IDLE
 	show()
-	name_label.show()
-	collision.set_deferred("disabled", false)
+	if name_label != null:
+		name_label.show()
+	if collision != null:
+		collision.set_deferred("disabled", false)
 	is_dead = false
 
-func _move_to_x(target_x: float):
-	# Використовуємо move_speed, завантажений з бази
-	var direction = sign(target_x - global_position.x)
+func _move_to_x(target_x: float) -> void:
+	var direction: float = signf(target_x - global_position.x)
 	velocity.x = direction * move_speed
 
-func _pick_new_wander_target():
-	# Використовуємо wander_radius, завантажений з бази
+func _pick_new_wander_target() -> void:
 	wander_target_x = spawn_position.x + randf_range(-wander_radius, wander_radius)
 
-func _flip_sprite():
-	if velocity.x != 0:
-		sprite.flip_h = velocity.x < 0
+func _flip_sprite() -> void:
+	if sprite != null and velocity.x != 0.0:
+		sprite.flip_h = velocity.x < 0.0

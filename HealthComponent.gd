@@ -1,63 +1,53 @@
 extends Node
 class_name HealthComponent
 
-# --- СИГНАЛИ ---
-signal health_changed(current_hp, max_hp)
+## Сигнал зміни здоров'я (передає поточне та максимальне значення)
+signal health_changed(current_hp: float, max_hp: float)
+## Сигнал смерті сутності
 signal died
 
-# --- ЗВ'ЯЗКИ ---
 @export var stats_component: StatsComponent
 
-var current_health: float
+var current_health: float = 100.0
 
-func _ready():
-	# Чекаємо кадр, щоб StatsComponent встиг завантажитись
+func _ready() -> void:
 	await get_tree().process_frame
 	
-	if stats_component:
+	if stats_component != null:
 		initialize_health()
 	else:
-		push_error("HealthComponent: Помилка! Не призначено StatsComponent!")
+		push_error("HealthComponent: Не призначено StatsComponent!")
 
-# Функція стартового налаштування (або повного відновлення)
-func initialize_health():
-	if not stats_component: return
+## Повне відновлення та ініціалізація здоров'я
+func initialize_health() -> void:
+	if stats_component == null:
+		return
 	
-	var max_hp = stats_component.get_stat("max_health")
+	var max_hp: float = maxf(1.0, stats_component.get_stat("max_health"))
 	current_health = max_hp
 	health_changed.emit(current_health, max_hp)
 
-# --- ОТРИМАННЯ ШКОДИ ---
-func take_damage(data: DamageData):
-	# --- ГОЛОВНА ЗМІНА: ПІДКЛЮЧЕННЯ БУХГАЛТЕРІЇ ---
-	# Ми не просто віднімаємо data.amount.
-	# Ми просимо DamageSystem порахувати фінальну шкоду (враховуючи броню).
-	var final_damage = DamageSystem.apply_defense(data, stats_component)
-	# -----------------------------------------------
+## Отримання шкоди з урахуванням броні та валідацією значень
+func take_damage(data: DamageData) -> void:
+	if data == null or current_health <= 0.0:
+		return
+		
+	var final_damage: int = DamageSystem.apply_defense(data, stats_component)
+	var validated_damage: float = maxf(0.0, float(final_damage))
 	
-	current_health -= final_damage
+	current_health = maxf(0.0, current_health - validated_damage)
 	
-	# Оновлюємо UI
-	var max_hp = stats_component.get_stat("max_health")
+	var max_hp: float = stats_component.get_stat("max_health") if stats_component != null else 100.0
 	health_changed.emit(current_health, max_hp)
 	
-	# Лог для перевірки роботи броні
-	if data.source:
-		print("Отримав ", final_damage, " шкоди (вхідна: ", data.amount, ") від ", data.source.name)
-	
-	# Перевірка на смерть
-	if current_health <= 0:
+	if current_health <= 0.0:
 		died.emit()
 
-# --- ЛІКУВАННЯ ---
-func heal(amount: float):
-	if not stats_component: return
+## Лікування сутності з обмеженням до максимального запасу здоров'я
+func heal(amount: float) -> void:
+	if stats_component == null or amount <= 0.0 or is_nan(amount):
+		return
 	
-	var max_hp = stats_component.get_stat("max_health")
-	current_health += amount
-	
-	# Не дозволяємо лікувати більше максимуму
-	if current_health > max_hp:
-		current_health = max_hp
-		
+	var max_hp: float = maxf(1.0, stats_component.get_stat("max_health"))
+	current_health = clampf(current_health + amount, 0.0, max_hp)
 	health_changed.emit(current_health, max_hp)
