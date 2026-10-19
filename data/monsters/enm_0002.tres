@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3 uid="uid://cqsr7l6ej804d"]
+
+[ext_resource type="Script" uid="uid://chpy0bhlqyler" path="res://AttributeData.gd" id="1_bio5q"]
+[ext_resource type="Script" uid="uid://ddwff8yt8al53" path="res://scripts/data/monster_data.gd" id="2_iyw03"]
+
+[sub_resource type="Resource" id="Resource_bio5q"]
+script = ExtResource("1_bio5q")
+strength = 15.0
+max_health = 12.0
+movement_speed = 60.0
+
+[resource]
+script = ExtResource("2_iyw03")
+id = "enm_0002"
+monster_name = "Forest Orc"
+level = 5
+is_aggressive = true
+xp_reward = 100
+base_attributes = SubResource("Resource_bio5q")
+drops = {
+"res_0001": {
+"chance": 0.5,
+"max": 3,
+"min": 1
+},
+"res_0002": {
+"chance": 1.0,
+"max": 5,
+"min": 1
+},
+"wpn_0001": {
+"chance": 0.2,
+"max": 1,
+"min": 1
+}
+}

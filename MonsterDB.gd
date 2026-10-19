@@ -1,156 +1,83 @@
 extends Node
 
-# [ВАЖЛИВО] Шлях до папки з предметами екіпірування та лутом
 const ITEMS_PATH: String = "res://items/loot/"
+const MONSTERS_PATH: String = "res://data/monsters/"
 
-# База даних усіх монстрів у грі.
-# Використовуються нові строкові ID (enm_0001, enm_0002 тощо).
-var MOBS: Dictionary = {
-	"enm_0001": {
-		"name": "Weak Gremlin",
-		"level": 1,
-		"is_aggressive": true,
-		"skills": ["skl_0001"],
-		"xp_reward": 15,
-		"stats": {
-			"strength": 5.0,
-			"max_health": 5.0,
-			"dexterity": 5.0,
-			"intelligence": 5.0,
-			"armor": 0.0,
-			"movement_speed": 130.0,
-			"attack_range": 40.0,
-			"attack_speed": 1.2,
-			"detection_radius": 500.0,
-			"chase_limit": 700.0,
-			"wander_radius": 300.0,
-			"respawn_time": 5.0
-		},
-		"drops": {
-			# res_0001 - це колишня шкіра (skin)
-			"res_0001": { 
-				"chance": 0.9, 
-				"min": 1, 
-				"max": 5 
-			},
-			# wpn_0001 - це колишній іржавий меч (rusty_sword)
-			"wpn_0001": { 
-				"chance": 0.2, 
-				"min": 1, 
-				"max": 1 
-			}
-		}
-	},
-	"enm_0002": {
-		"name": "Forest Orc",
-		"level": 5,
-		"is_aggressive": true,
-		"skills": ["skl_0001", "skl_0005"],
-		"xp_reward": 100,
-		"stats": {
-			"strength": 15.0,
-			"max_health": 12.0,
-			"dexterity": 8.0,
-			"intelligence": 5.0,
-			"armor": 2.0,
-			"movement_speed": 70.0,
-			"attack_range": 45.0,
-			"attack_speed": 1.0,
-			"detection_radius": 250.0,
-			"chase_limit": 500.0,
-			"wander_radius": 150.0,
-			"respawn_time": 10.0
-		},
-		"drops": {
-			# res_0001 - Шкіра
-			"res_0001": { 
-				"chance": 0.5, 
-				"min": 1, 
-				"max": 3 
-			},
-			# wpn_0001 - Іржавий меч
-			"wpn_0001": { 
-				"chance": 0.2, 
-				"min": 1, 
-				"max": 1 
-			},
-			# res_0002 - Монета (coin)
-			"res_0002": { 
-				"chance": 1.0, 
-				"min": 1, 
-				"max": 5 
-			}
-		}
-	}
-}
+var _loaded_monsters: Dictionary = {}
 
-## Отримання базових характеристик для моба за його ID
-func get_attributes(mob_id: String) -> AttributeData:
-	if not MOBS.has(mob_id):
-		push_error("MonsterDB: ID моба не знайдено -> " + mob_id)
-		return AttributeData.new()
+func _ready() -> void:
+	_cache_all_monsters()
 
-	var data: Dictionary = MOBS[mob_id] as Dictionary
-	var stats_data: Dictionary = data.get("stats", {}) as Dictionary
-
-	var attrs: AttributeData = AttributeData.new()
-	
-	# Первинні атрибути
-	attrs.strength = float(stats_data.get("strength", 10.0))
-	attrs.dexterity = float(stats_data.get("dexterity", 10.0))
-	attrs.intelligence = float(stats_data.get("intelligence", 10.0))
-	attrs.constitution = float(stats_data.get("constitution", 10.0))
-	attrs.luck = float(stats_data.get("luck", 5.0))
-	
-	# Життєві показники
-	if stats_data.has("max_health"):
-		attrs.max_health = float(stats_data.get("max_health", 100.0))
-	elif stats_data.has("base_health"):
-		attrs.max_health = float(stats_data.get("base_health", 100.0))
+## Сканує папку і безпечно завантажує файли в ОЗП
+func _cache_all_monsters() -> void:
+	if not DirAccess.dir_exists_absolute(MONSTERS_PATH):
+		DirAccess.make_dir_recursive_absolute(MONSTERS_PATH)
+		push_error("MonsterDB: Папки не існувало! Натисни Ctrl+Shift+X у csv_importer.gd")
+		return
 		
-	attrs.health_regeneration = float(stats_data.get("health_regeneration", 1.0))
-	attrs.max_mana = float(stats_data.get("max_mana", 50.0))
-	attrs.mana_regeneration = float(stats_data.get("mana_regeneration", 2.0))
-	
-	# Бойові характеристики
-	attrs.armor = float(stats_data.get("armor", 0.0))
-	attrs.physical_damage = float(stats_data.get("physical_damage", 10.0))
-	attrs.magic_damage = float(stats_data.get("magic_damage", 0.0))
-	attrs.movement_speed = float(stats_data.get("movement_speed", 150.0))
-	attrs.attack_range = float(stats_data.get("attack_range", 40.0))
-	attrs.attack_speed = float(stats_data.get("attack_speed", 1.0))
-	
-	attrs.critical_chance = float(stats_data.get("critical_chance", 0.05))
-	attrs.critical_multiplier = float(stats_data.get("critical_multiplier", 1.5))
-	
-	# AI параметри поведінки
-	attrs.detection_radius = float(stats_data.get("detection_radius", 200.0))
-	attrs.chase_limit = float(stats_data.get("chase_limit", 400.0))
-	attrs.wander_radius = float(stats_data.get("wander_radius", 100.0))
-	attrs.respawn_time = float(stats_data.get("respawn_time", 15.0))
-	
-	# Нагороди
-	attrs.xp_reward = int(data.get("xp_reward", 10))
-	
-	return attrs
+	var files: PackedStringArray = DirAccess.get_files_at(MONSTERS_PATH)
+	for file_name: String in files:
+		if file_name.ends_with(".tres") or file_name.ends_with(".res") or file_name.ends_with(".remap"):
+			var clean_name: String = file_name.replace(".remap", "")
+			var full_path: String = MONSTERS_PATH + clean_name
+			var res: Resource = load(full_path)
+			
+			# [ОБХІД БАГА GODOT] "is MonsterData" в Autoload часто хибно видає false.
+			# Перевіряємо наявність властивості "id" безпосередньо (Duck Typing).
+			if res != null and res.get("id") != null:
+				var actual_id: String = str(res.get("id"))
+				if actual_id.is_empty():
+					actual_id = clean_name.get_basename()
+				_loaded_monsters[actual_id] = res
+				
+	if _loaded_monsters.is_empty():
+		push_error("MonsterDB: ❌ КРИТИЧНА ПОМИЛКА! БАЗА ПОРОЖНЯ! Вороги будуть сліпі і без дропу!")
+	else:
+		print("MonsterDB: ✅ Успішно завантажено мобів: ", _loaded_monsters.size())
 
-## Отримання словника з інформацією про моба
+## Отримання характеристик моба
+func get_attributes(mob_id: String) -> AttributeData:
+	if not _loaded_monsters.has(mob_id):
+		return AttributeData.new()
+		
+	var data: Resource = _loaded_monsters[mob_id]
+	var attrs: Variant = data.get("base_attributes")
+	if attrs != null and attrs is AttributeData:
+		return attrs.duplicate() as AttributeData
+		
+	return AttributeData.new()
+
+## Отримання інформації для UI та логіки
 func get_mob_info(mob_id: String) -> Dictionary:
-	return MOBS.get(mob_id, {}) as Dictionary
-	
-## Розрахунок випадіння предметів при смерті моба
+	if not _loaded_monsters.has(mob_id):
+		return {}
+		
+	var data: Resource = _loaded_monsters[mob_id]
+	return {
+		"name": str(data.get("monster_name")),
+		"level": int(data.get("level")),
+		"is_aggressive": bool(data.get("is_aggressive")),
+		"xp_reward": int(data.get("xp_reward"))
+	}
+
+## Безпечний розрахунок луту з обходом кешу ResourceLoader
 func calculate_loot(mob_id: String) -> Array[ItemData]:
 	var dropped_items: Array[ItemData] = []
 	
-	if not MOBS.has(mob_id): 
+	if not _loaded_monsters.has(mob_id):
 		return dropped_items
+		
+	var data: Resource = _loaded_monsters[mob_id]
+	var drop_table: Variant = data.get("drops")
 	
-	var mob_data: Dictionary = MOBS[mob_id] as Dictionary
-	var drop_table: Dictionary = mob_data.get("drops", {}) as Dictionary
+	if drop_table == null or typeof(drop_table) != TYPE_DICTIONARY:
+		return dropped_items
+		
+	var drops_dict: Dictionary = drop_table as Dictionary
 	
-	for item_key: Variant in drop_table.keys():
+	for item_key: Variant in drops_dict.keys():
 		var item_id: String = str(item_key)
-		var entry: Variant = drop_table[item_id]
+		var entry: Variant = drops_dict[item_id]
 		
 		var chance: float = 0.0
 		var min_qty: int = 1
@@ -161,19 +88,17 @@ func calculate_loot(mob_id: String) -> Array[ItemData]:
 			chance = float(entry_dict.get("chance", 0.0))
 			min_qty = int(entry_dict.get("min", 1))
 			max_qty = int(entry_dict.get("max", 1))
-		elif entry is float or entry is int:
-			chance = float(entry)
-		
+			
 		if randf() <= chance:
 			var path: String = ITEMS_PATH + item_id + ".tres"
 			
-			if ResourceLoader.exists(path):
-				var item_res: Resource = load(path)
-				if item_res is ItemData:
-					var new_item: ItemData = item_res.duplicate() as ItemData
-					new_item.quantity = randi_range(min_qty, max_qty)
-					dropped_items.append(new_item)
+			# [ОБХІД БАГА GODOT] Пряме завантаження замість ResourceLoader.exists()
+			var item_res: Resource = load(path)
+			if item_res != null and item_res is ItemData:
+				var new_item: ItemData = item_res.duplicate() as ItemData
+				new_item.quantity = randi_range(min_qty, max_qty)
+				dropped_items.append(new_item)
 			else:
-				print("MonsterDB: ПОМИЛКА! Не знайдено файл предмета луту -> ", path)
+				push_error("MonsterDB: ❌ ПОМИЛКА ДРОПУ! Не знайдено предмет: " + path)
 				
 	return dropped_items

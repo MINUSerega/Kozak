@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3 uid="uid://5yo42n1h8j1a"]
+
+[ext_resource type="Script" uid="uid://chpy0bhlqyler" path="res://AttributeData.gd" id="1_yc6wq"]
+[ext_resource type="Script" uid="uid://ddwff8yt8al53" path="res://scripts/data/monster_data.gd" id="2_vnroh"]
+
+[sub_resource type="Resource" id="Resource_yc6wq"]
+script = ExtResource("1_yc6wq")
+strength = 5.0
+max_health = 5.0
+movement_speed = 60.0
+
+[resource]
+script = ExtResource("2_vnroh")
+id = "enm_0001"
+monster_name = "Weak Gremlin"
+is_aggressive = true
+xp_reward = 15
+base_attributes = SubResource("Resource_yc6wq")
+drops = {
+"res_0001": {
+"chance": 0.9,
+"max": 5,
+"min": 1
+},
+"wpn_0001": {
+"chance": 0.2,
+"max": 1,
+"min": 1
+}
+}

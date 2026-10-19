@@ -61,13 +61,18 @@ func _physics_process(delta: float) -> void:
 	if is_dead: 
 		return
 
+	# [ВИПРАВЛЕННЯ] Якщо гравця не було знайдено на старті, постійно перевіряємо його наявність
+	if player == null:
+		var p_node: Node = get_tree().get_first_node_in_group("Player")
+		if p_node is CharacterBody2D:
+			player = p_node as CharacterBody2D
+
 	if not is_on_floor():
 		velocity.y += gravity * delta
 
 	if current_attack_cooldown > 0.0:
 		current_attack_cooldown -= delta
 
-	# Логіка перевірки стану гравця
 	if player != null and player.has_method("is_dead") and player.get("is_dead") == true:
 		if current_state == State.CHASE or current_state == State.ATTACK:
 			current_state = State.RETURN 
